@@ -1,97 +1,75 @@
-import java.util.Arrays;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
-public class BottomUpParser {
-    private final List<Token> tokens;
+class BottomUpParser {
+    private final Map<String, String> rules = new LinkedHashMap<>();
+    private final Stack<String> stack = new Stack<>();
+    private final Set<String> terminals = new HashSet<>(Arrays.asList("+", "*", "id", "$"));
 
-    public BottomUpParser(List<Token> tokens) {
-        this.tokens = tokens;
+
+    public BottomUpParser() {
+        rules.put("E+T", "E");
+        rules.put("T*F", "T");
+        rules.put("T", "E");
+        rules.put("id", "F");
+        rules.put("F", "T");
+        rules.put("E", "S");
     }
 
-    public boolean parse() {
-        Stack<String> stack = new Stack<>();
-        int pos = 0;
 
-        while (pos < tokens.size()) {
-            Token currentToken = tokens.get(pos);
-            if (currentToken.getType() == TokenType.EOF) {
-                pos++;
-                continue;
-            }
+    public boolean parse(String input) {
 
-            stack.push(currentToken.toString());
-            pos++;
+        List<String> tokens = tokenize(input);
+        tokens.add("$");
+
+        int index = 0;
+        while (index < tokens.size()) {
+
+            stack.push(tokens.get(index));
+            index++;
 
 
-            while (reduce(stack)) { }
+            while (reduce()) {}
         }
 
 
-        while (reduce(stack)) { }
-
-        return stack.size() == 1 && stack.peek().equals("E");
+        return stack.size() == 2 && stack.peek().equals("S") && stack.get(0).equals("$");
     }
 
 
-    private static final List<String[]> REDUCTIONS = Arrays.asList(
-            new String[]{"E", "+", "T"},
-            new String[]{"T", "*", "F"},
-            new String[]{"(", "E", ")"},
-            new String[]{"id"},
-            new String[]{"F"},
-            new String[]{"T"}
-    );
+    private boolean reduce() {
+        String currentStack = String.join("", stack);
 
-    private boolean reduce(Stack<String> stack) {
-        for (String[] rule : REDUCTIONS) {
-            if (canApplyReduction(stack, rule)) {
-                applyReduction(stack, rule);
+
+        for (String key : rules.keySet()) {
+            if (currentStack.endsWith(key)) {
+                String[] symbols = key.split("");
+                for (int i = 0; i < symbols.length; i++) {
+                    if (stack.isEmpty()) {
+                        return false;
+                    }
+                    stack.pop();
+                }
+                stack.push(rules.get(key));
                 return true;
             }
         }
         return false;
     }
 
-    private boolean canApplyReduction(Stack<String> stack, String[] rule) {
-        if (stack.size() < rule.length) return false;
-        for (int i = 0; i < rule.length; i++) {
-            if (!stack.get(stack.size() - rule.length + i).equals(rule[i])) {
-                return false;
+
+    private List<String> tokenize(String input) {
+        List<String> tokens = new ArrayList<>();
+        String[] parts = input.split("\\s+");
+
+        for (String part : parts) {
+            if (part.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
+                tokens.add("id");
+            } else if (terminals.contains(part)) {
+                tokens.add(part);
+            } else {
+                throw new IllegalArgumentException("Invalid token: " + part);
             }
         }
-        return true;
-    }
-
-    private void applyReduction(Stack<String> stack, String[] rule) {
-
-        for (int i = 0; i < rule.length; i++) {
-            stack.pop();
-        }
-
-
-        switch (rule.length) {
-            case 3:
-                if (rule[0].equals("E") && rule[1].equals("+") && rule[2].equals("T")) {
-                    stack.push("E");
-                } else if (rule[0].equals("T") && rule[1].equals("*") && rule[2].equals("F")) {
-                    stack.push("T");
-                } else if (rule[0].equals("(") && rule[1].equals("E") && rule[2].equals(")")) {
-                    stack.push("F");
-                }
-                break;
-            case 1:
-                if (rule[0].equals("id")) {
-                    stack.push("F");
-                } else if (rule[0].equals("F")) {
-                    stack.push("T");
-                } else if (rule[0].equals("T")) {
-                    stack.push("E");
-                }
-                break;
-            default:
-
-                break;
-        }
+        return tokens;
     }
 }
