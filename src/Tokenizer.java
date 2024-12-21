@@ -7,7 +7,7 @@ public class Tokenizer {
     private final int length;
 
     public Tokenizer(String input) {
-        // Remove whitespace and append EOF symbol
+
         this.input = input.replaceAll("\\s+", "") + "$";
         this.length = this.input.length();
     }

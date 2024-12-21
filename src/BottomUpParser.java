@@ -23,17 +23,17 @@ public class BottomUpParser {
             stack.push(currentToken.toString());
             pos++;
 
-            // Attempt reductions after each shift
+
             while (reduce(stack)) { }
         }
 
-        // Final reductions
+
         while (reduce(stack)) { }
 
         return stack.size() == 1 && stack.peek().equals("E");
     }
 
-    // Define grammar reduction rules
+
     private static final List<String[]> REDUCTIONS = Arrays.asList(
             new String[]{"E", "+", "T"},
             new String[]{"T", "*", "F"},
@@ -64,12 +64,12 @@ public class BottomUpParser {
     }
 
     private void applyReduction(Stack<String> stack, String[] rule) {
-        // Pop the RHS of the production
+
         for (int i = 0; i < rule.length; i++) {
             stack.pop();
         }
 
-        // Determine the LHS non-terminal to push based on the rule
+
         switch (rule.length) {
             case 3:
                 if (rule[0].equals("E") && rule[1].equals("+") && rule[2].equals("T")) {
@@ -90,7 +90,7 @@ public class BottomUpParser {
                 }
                 break;
             default:
-                // No action for other rules
+
                 break;
         }
     }

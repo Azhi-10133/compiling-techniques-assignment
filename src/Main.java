@@ -21,7 +21,7 @@ public class Main extends JFrame {
     private void initUI() {
         setLayout(new BorderLayout());
 
-        // Top panel with input field and buttons
+        
         JPanel topPanel = new JPanel(new FlowLayout());
 
         topPanel.add(new JLabel("Enter Expression:"));
@@ -31,12 +31,12 @@ public class Main extends JFrame {
 
         add(topPanel, BorderLayout.NORTH);
 
-        // Output area
+        
         outputArea.setEditable(false);
         outputArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         add(scrollPane, BorderLayout.CENTER);
 
-        // Action listeners using lambda expressions
+        
         parseButton.addActionListener(this::parseInput);
         clearButton.addActionListener(e -> {
             inputField.setText("");
@@ -63,7 +63,7 @@ public class Main extends JFrame {
             return;
         }
 
-        // Top-Down Parsing
+        
         TopDownParser topDownParser = new TopDownParser(tokens);
         boolean topDownResult;
         try {
@@ -74,7 +74,7 @@ public class Main extends JFrame {
             topDownResult = false;
         }
 
-        // Bottom-Up Parsing
+        
         BottomUpParser bottomUpParser = new BottomUpParser(tokens);
         boolean bottomUpResult;
         try {
@@ -85,7 +85,7 @@ public class Main extends JFrame {
             bottomUpResult = false;
         }
 
-        // Overall Result
+        
         if (topDownResult && bottomUpResult) {
             outputArea.append("\nOverall Result: Accepted by both parsers.");
         } else {

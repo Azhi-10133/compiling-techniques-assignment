@@ -47,7 +47,7 @@ public class TopDownParser {
             E();
             expect(TokenType.RPAREN);
         } else if (match(TokenType.ID)) {
-            // ID matched, do nothing
+
         } else {
             throw new ParseException("Expected 'id' or '(', found: " + peek());
         }
