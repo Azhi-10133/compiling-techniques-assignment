@@ -13,6 +13,7 @@ public class GrammarParsers extends JFrame {
     private JLabel resultLabel;
 
     public GrammarParsers() {
+
         setTitle("Grammar Parsers");
         setSize(500, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -20,20 +21,25 @@ public class GrammarParsers extends JFrame {
 
 
         JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new GridLayout(5, 1, 5, 5));
+        inputPanel.setLayout(new GridLayout(6, 1, 5, 5));
 
 
-        JLabel grammarLabel = new JLabel("Enter Grammar Rules (e.g., S->aSb|ε):");
+        JLabel grammarLabel = new JLabel("Enter Grammar Rules (e.g., E->E+T|T):");
         grammarInputArea = new JTextArea(5, 30);
         grammarInputArea.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+
 
         JLabel parserTypeLabel = new JLabel("Select Parser Type:");
         parserTypeComboBox = new JComboBox<>(new String[]{"Top-Down Parser", "Bottom-Up Parser"});
 
+
         JLabel inputStringLabel = new JLabel("Enter Input String:");
         inputStringField = new JTextField(20);
 
+
         parseButton = new JButton("Parse");
+
+
         resultLabel = new JLabel("Result: ");
 
 
@@ -58,11 +64,13 @@ public class GrammarParsers extends JFrame {
         });
     }
 
+
     private void parseInput() {
 
         String grammarText = grammarInputArea.getText().trim();
         String inputString = inputStringField.getText().trim();
         int parserChoice = parserTypeComboBox.getSelectedIndex() + 1;
+
 
         if (grammarText.isEmpty()) {
             resultLabel.setText("Result: Error - Grammar rules cannot be empty!");
@@ -79,47 +87,27 @@ public class GrammarParsers extends JFrame {
             grammarRules.add(line.replaceAll("\\s*->\\s*", "->").replaceAll("\\s*\\|\\s*", "|"));
         }
 
-
-        List<String> tokens = tokenize(inputString);
-
         boolean parsingResult = false;
 
         try {
             if (parserChoice == 1) {
 
                 TopDownParser topDownParser = new TopDownParser(grammarRules);
-                parsingResult = topDownParser.parse(String.join(" ", tokens));
+                parsingResult = topDownParser.parse(inputString);
             } else if (parserChoice == 2) {
 
-                BottomUpParser bottomUpParser = new BottomUpParser();
-                parsingResult = bottomUpParser.parse(String.join(" ", tokens));
+                BottomUpParser bottomUpParser = new BottomUpParser(grammarRules);
+                parsingResult = bottomUpParser.parse(inputString);
             }
 
 
             resultLabel.setText("Result: " + (parsingResult ? "Accepted" : "Rejected"));
         } catch (Exception ex) {
+
             resultLabel.setText("Error: " + ex.getMessage());
         }
     }
 
-    private List<String> tokenize(String input) {
-        List<String> tokens = new ArrayList<>();
-        StringTokenizer tokenizer = new StringTokenizer(input, "+*() ", true);
-
-        while (tokenizer.hasMoreTokens()) {
-            String token = tokenizer.nextToken().trim();
-
-            if (token.isEmpty()) continue;
-
-
-            if (token.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
-                tokens.add("id");
-            } else {
-                tokens.add(token);
-            }
-        }
-        return tokens;
-    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
