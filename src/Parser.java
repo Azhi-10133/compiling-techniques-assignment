@@ -4,7 +4,7 @@ import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
-public class ParserWithUI extends JFrame {
+public class Parser extends JFrame {
     // Define token types
     enum TokenType {
         ID, PLUS, MULT, LPAREN, RPAREN, EOF
@@ -276,7 +276,7 @@ public class ParserWithUI extends JFrame {
     private JTextArea outputArea;
     private JScrollPane scrollPane;
 
-    public ParserWithUI() {
+    public Parser() {
         setTitle("Arithmetic Expression Parser");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -381,7 +381,7 @@ public class ParserWithUI extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            ParserWithUI parserUI = new ParserWithUI();
+            Parser parserUI = new Parser();
             parserUI.setVisible(true);
         });
     }
