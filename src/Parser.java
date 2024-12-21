@@ -59,36 +59,25 @@ public class Parser extends JFrame {
                         tokens.add(new Token(TokenType.RPAREN, ")"));
                         pos++;
                         break;
-                    case 'i':
-                        if (pos + 1 < length && input.charAt(pos + 1) == 'd') {
-                            tokens.add(new Token(TokenType.ID, "id"));
-                            pos += 2;
-                        } else {
-                            throw new RuntimeException("Invalid token at position " + pos);
-                        }
-                        break;
                     case '$':
                         tokens.add(new Token(TokenType.EOF, "$"));
                         pos++;
                         break;
                     default:
-                        throw new RuntimeException("Unknown character: " + current + " at position " + pos);
+                        if (Character.isLetter(current)) {
+                            StringBuilder sb = new StringBuilder();
+                            while (pos < length && Character.isLetter(input.charAt(pos))) {
+                                sb.append(input.charAt(pos));
+                                pos++;
+                            }
+                            tokens.add(new Token(TokenType.ID, sb.toString()));
+                        } else {
+                            throw new RuntimeException("Unknown character: '" + current + "' at position " + pos);
+                        }
                 }
             }
             return tokens;
         }
-    }
-
-
-    static class Grammar {
-        String[] rules = {
-                "E -> E + T",
-                "E -> T",
-                "T -> T * F",
-                "T -> F",
-                "F -> ( E )",
-                "F -> id"
-        };
     }
 
 
@@ -189,7 +178,13 @@ public class Parser extends JFrame {
             int pos = 0;
 
             while (pos < tokens.size()) {
-                stack.push(tokens.get(pos).toString());
+                Token currentToken = tokens.get(pos);
+                if (currentToken.type == TokenType.EOF) {
+
+                    pos++;
+                    continue;
+                }
+                stack.push(currentToken.toString());
                 pos++;
 
                 boolean reduced;
@@ -215,7 +210,6 @@ public class Parser extends JFrame {
                     new String[]{"id"},
                     new String[]{"F"},
                     new String[]{"T"}
-
             );
 
             for (String[] rule : reductions) {
@@ -238,11 +232,9 @@ public class Parser extends JFrame {
         }
 
         private void applyReduction(Stack<String> stack, String[] rule) {
-
             for (int i = 0; i < rule.length; i++) {
                 stack.pop();
             }
-
 
             switch (rule.length) {
                 case 3:
@@ -264,7 +256,6 @@ public class Parser extends JFrame {
                     }
                     break;
                 default:
-
                     break;
             }
         }
@@ -288,7 +279,6 @@ public class Parser extends JFrame {
 
         setLayout(new BorderLayout());
 
-
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new FlowLayout());
 
@@ -305,13 +295,11 @@ public class Parser extends JFrame {
 
         add(topPanel, BorderLayout.NORTH);
 
-
         outputArea = new JTextArea();
         outputArea.setEditable(false);
         outputArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         scrollPane = new JScrollPane(outputArea);
         add(scrollPane, BorderLayout.CENTER);
-
 
         parseButton.addActionListener(new ActionListener() {
             @Override
@@ -338,7 +326,6 @@ public class Parser extends JFrame {
 
         outputArea.setText("");
 
-
         Tokenizer tokenizer = new Tokenizer(input);
         List<Token> tokens;
         try {
@@ -348,7 +335,6 @@ public class Parser extends JFrame {
             outputArea.append("Tokenizer Error: " + ex.getMessage() + "\n");
             return;
         }
-
 
         TopDownParser topDownParser = new TopDownParser(tokens);
         boolean topDownResult;
@@ -360,7 +346,6 @@ public class Parser extends JFrame {
             topDownResult = false;
         }
 
-
         BottomUpParser bottomUpParser = new BottomUpParser(tokens);
         boolean bottomUpResult;
         try {
@@ -370,7 +355,6 @@ public class Parser extends JFrame {
             outputArea.append("Bottom-Up Parsing Error: " + ex.getMessage() + "\n");
             bottomUpResult = false;
         }
-
 
         if (topDownResult && bottomUpResult) {
             outputArea.append("\nOverall Result: Accepted by both parsers.");
