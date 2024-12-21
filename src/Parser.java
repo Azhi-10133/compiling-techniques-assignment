@@ -5,12 +5,12 @@ import java.util.*;
 import java.util.List;
 
 public class Parser extends JFrame {
-    // Define token types
+
     enum TokenType {
         ID, PLUS, MULT, LPAREN, RPAREN, EOF
     }
 
-    // Token class
+
     static class Token {
         TokenType type;
         String value;
@@ -26,14 +26,14 @@ public class Parser extends JFrame {
         }
     }
 
-    // Tokenizer class
+
     static class Tokenizer {
         private final String input;
         private int pos = 0;
         private final int length;
 
         Tokenizer(String input) {
-            // Remove whitespace and append EOF symbol
+
             this.input = input.replaceAll("\\s+", "") + "$";
             this.length = this.input.length();
         }
@@ -79,7 +79,7 @@ public class Parser extends JFrame {
         }
     }
 
-    // Grammar class (for reference, not directly used in parsers)
+
     static class Grammar {
         String[] rules = {
                 "E -> E + T",
@@ -91,7 +91,7 @@ public class Parser extends JFrame {
         };
     }
 
-    // Top-Down Parser (Recursive Descent)
+
     static class TopDownParser {
         private final List<Token> tokens;
         private int pos = 0;
@@ -120,7 +120,7 @@ public class Parser extends JFrame {
                 T();
                 EPrime();
             }
-            // epsilon production
+
         }
 
         private void T() throws ParseException {
@@ -133,7 +133,7 @@ public class Parser extends JFrame {
                 F();
                 TPrime();
             }
-            // epsilon production
+
         }
 
         private void F() throws ParseException {
@@ -141,7 +141,7 @@ public class Parser extends JFrame {
                 E();
                 expect(TokenType.RPAREN);
             } else if (match(TokenType.ID)) {
-                // matched 'id'
+
             } else {
                 throw new ParseException("Expected 'id' or '(', found: " + peek());
             }
@@ -168,7 +168,7 @@ public class Parser extends JFrame {
             return new Token(TokenType.EOF, "$");
         }
 
-        // Custom exception for parse errors
+
         static class ParseException extends Exception {
             ParseException(String message) {
                 super(message);
@@ -176,7 +176,7 @@ public class Parser extends JFrame {
         }
     }
 
-    // Bottom-Up Parser (Shift-Reduce)
+
     static class BottomUpParser {
         private final List<Token> tokens;
 
@@ -191,40 +191,40 @@ public class Parser extends JFrame {
             while (pos < tokens.size()) {
                 stack.push(tokens.get(pos).toString());
                 pos++;
-                // Attempt to reduce after each shift
+
                 boolean reduced;
                 do {
                     reduced = reduce(stack);
                 } while (reduced);
             }
 
-            // After processing all tokens, try to reduce to the start symbol
+
             while (reduce(stack)) {
-                // Keep reducing until no more reductions are possible
+
             }
 
             return stack.size() == 1 && stack.peek().equals("E");
         }
 
         private boolean reduce(Stack<String> stack) {
-            // Define the possible reductions in order of priority
+
             List<String[]> reductions = Arrays.asList(
-                    new String[]{"E", "+", "T"}, // E -> E + T
-                    new String[]{"T", "*", "F"}, // T -> T * F
-                    new String[]{"(", "E", ")"}, // F -> ( E )
-                    new String[]{"id"},           // F -> id
-                    new String[]{"F"},            // T -> F
-                    new String[]{"T"}            // E -> T
-                    // Removed new String[]{"E"} // Accepting E, to prevent redundant reductions
+                    new String[]{"E", "+", "T"},
+                    new String[]{"T", "*", "F"},
+                    new String[]{"(", "E", ")"},
+                    new String[]{"id"},
+                    new String[]{"F"},
+                    new String[]{"T"}
+
             );
 
             for (String[] rule : reductions) {
                 if (canApplyReduction(stack, rule)) {
                     applyReduction(stack, rule);
-                    return true; // A reduction was applied
+                    return true;
                 }
             }
-            return false; // No reduction applied
+            return false;
         }
 
         private boolean canApplyReduction(Stack<String> stack, String[] rule) {
@@ -238,12 +238,12 @@ public class Parser extends JFrame {
         }
 
         private void applyReduction(Stack<String> stack, String[] rule) {
-            // Remove the symbols to be reduced
+
             for (int i = 0; i < rule.length; i++) {
                 stack.pop();
             }
 
-            // Determine the non-terminal to push based on the rule
+
             switch (rule.length) {
                 case 3:
                     if (rule[0].equals("E") && rule[1].equals("+") && rule[2].equals("T")) {
@@ -264,13 +264,13 @@ public class Parser extends JFrame {
                     }
                     break;
                 default:
-                    // No action
+
                     break;
             }
         }
     }
 
-    // GUI Components
+
     private JTextField inputField;
     private JButton parseButton, clearButton;
     private JTextArea outputArea;
@@ -281,14 +281,14 @@ public class Parser extends JFrame {
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initUI();
-        setLocationRelativeTo(null); // Center the window
+        setLocationRelativeTo(null);
     }
 
     private void initUI() {
-        // Set layout manager
+
         setLayout(new BorderLayout());
 
-        // Top panel for input
+
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new FlowLayout());
 
@@ -305,14 +305,14 @@ public class Parser extends JFrame {
 
         add(topPanel, BorderLayout.NORTH);
 
-        // Center panel for output
+
         outputArea = new JTextArea();
         outputArea.setEditable(false);
         outputArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         scrollPane = new JScrollPane(outputArea);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Add action listeners
+
         parseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -336,9 +336,9 @@ public class Parser extends JFrame {
             return;
         }
 
-        outputArea.setText(""); // Clear previous output
+        outputArea.setText("");
 
-        // Tokenization
+
         Tokenizer tokenizer = new Tokenizer(input);
         List<Token> tokens;
         try {
@@ -349,7 +349,7 @@ public class Parser extends JFrame {
             return;
         }
 
-        // Top-Down Parsing
+
         TopDownParser topDownParser = new TopDownParser(tokens);
         boolean topDownResult;
         try {
@@ -360,7 +360,7 @@ public class Parser extends JFrame {
             topDownResult = false;
         }
 
-        // Bottom-Up Parsing
+
         BottomUpParser bottomUpParser = new BottomUpParser(tokens);
         boolean bottomUpResult;
         try {
@@ -371,7 +371,7 @@ public class Parser extends JFrame {
             bottomUpResult = false;
         }
 
-        // Final Result
+
         if (topDownResult && bottomUpResult) {
             outputArea.append("\nOverall Result: Accepted by both parsers.");
         } else {
